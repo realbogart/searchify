@@ -120,6 +120,9 @@
         $(document).ready(function() {
             $("#get-playlist-button").click(function(){
                 getPlaylistTracks('0au1APFeCfjECZOY1SmVPQ', function(result, done) {
+                  result.items = result.items.sort(function(a, b){ 
+                    return b.track.popularity - a.track.popularity; 
+                  });
                   document.getElementById('playlist').innerHTML += playlistTemplate(result);
                 });
             }); 
