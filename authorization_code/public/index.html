@@ -69,9 +69,10 @@
       function getAllPages(url, pageResponseFunc)
       {
         apiCall(url, function responseFunc(response){
-          pageResponseFunc(response);
+          done = (response.next == null);
+          pageResponseFunc(response, done);
 
-          if(response.next != null)
+          if(!done)
           {
             apiCall(response.next, responseFunc);
           }
@@ -118,7 +119,7 @@
 
         $(document).ready(function() {
             $("#get-playlist-button").click(function(){
-                getPlaylistTracks('4uinqomXyGw8XTi7Tpkxw8', function(result) {
+                getPlaylistTracks('0au1APFeCfjECZOY1SmVPQ', function(result, done) {
                   document.getElementById('playlist').innerHTML += playlistTemplate(result);
                 });
             }); 
