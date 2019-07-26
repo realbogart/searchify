@@ -32,12 +32,18 @@
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
         <div id="playlist">
         </div>
+        <div id="playlist-links">
+        </div>
         <button id="get-playlist-button">Get playlist!</button>
       </div>
     </div>
 
     <script id="playlist-template" type="text/x-handlebars-template">
     {{#playlist items}}{{track.popularity}}:{{track.name}}{{/playlist}}
+    </script>
+
+    <script id="playlist-links-template" type="text/x-handlebars-template">
+    {{#playlist items}}{{track.uri}}{{/playlist}}
     </script>
 
     <script id="oauth-template" type="text/x-handlebars-template">
@@ -81,7 +87,7 @@
 
       function getPlaylistTracks(id, resultFunc)
       {
-        getAllPages('https://api.spotify.com/v1/playlists/'+id+'/tracks?fields=next%2Coffset%2Citems(track(popularity%2Cname%2Cid%2Cartists))', resultFunc);
+        getAllPages('https://api.spotify.com/v1/playlists/'+id+'/tracks?fields=next%2Coffset%2Citems(track(href%2Curi%2Cpopularity%2Cname%2Cid%2Cartists))', resultFunc);
       }
 
       (function() {
@@ -96,6 +102,7 @@
         }
 
         var playlistTemplate = Handlebars.compile( document.getElementById('playlist-template').innerHTML );
+        var playlistLinksTemplate = Handlebars.compile( document.getElementById('playlist-links-template').innerHTML );
 
         var oauthSource = document.getElementById('oauth-template').innerHTML,
             oauthTemplate = Handlebars.compile(oauthSource),
@@ -117,13 +124,21 @@
             refresh_token = params.refresh_token,
             error = params.error;
 
+        var fullList = { "items" : [] };
         $(document).ready(function() {
             $("#get-playlist-button").click(function(){
-                getPlaylistTracks('0au1APFeCfjECZOY1SmVPQ', function(result, done) {
-                  result.items = result.items.sort(function(a, b){ 
-                    return b.track.popularity - a.track.popularity; 
-                  });
-                  document.getElementById('playlist').innerHTML += playlistTemplate(result);
+                getPlaylistTracks('2VwbB1YrYSKbud9qAmcbTp', function(result, done) {
+                  fullList.items.push( ...result.items );
+
+                  if(done)
+                  {
+                    fullList.items = fullList.items.sort(function(a, b){ 
+                      return b.track.popularity - a.track.popularity; 
+                    });
+
+                    document.getElementById('playlist').innerHTML += playlistTemplate(fullList);
+                    document.getElementById('playlist-links').innerHTML += playlistLinksTemplate(fullList);
+                  }
                 });
             }); 
         });
